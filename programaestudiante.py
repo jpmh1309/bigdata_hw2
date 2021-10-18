@@ -23,46 +23,25 @@ def total_productos(data):
     
     finalDF.coalesce(1).write.option("header", True).csv("output/total_productos")
 
-    # data.write.csv("output/total_productos.csv")
-    #data.select("compras").show()
-    #data.select("compras").printSchema()
-    #print(data.select("compras").schema.fieldNames)
-    #explodeDF = data.select(explode("compras").alias("c"))
-    #explodeDF.show()
-    #print(explodeDF.schema.fieldNames)
-    #explodeDF.printSchema()
-
-    #explodeDF2 = explodeDF.select(explode("nombre").alias("n"))
-    #explodeDF2.show()
-    #flattenDF = explodeDF.select(explode("nombre").alias("n"))
-    #flattenDF.show()
-    #final = data.withColumn("nombre", data("compras.nombre"))
-    #final.show()
-
-    #nombreDF = flattenDF.select(explode(col("nombre")).alias("nombre"))
-    #nombreDF.show()
-
-    #cantidadDF = flattenDF.select(explode(col("cantidad")).alias("cantidad"))
-    #cantidadDF.show()
-
-    #nombreDF.join(cantidadDF)
-    #nombreDF.show()
-
-    # flattenDF.filter(flattenDF.nombre == "banano").show()
-    #flattenDF.select("nombre").distinct().show()
-    # df.select("columnname").distinct().show()
-
-
-
-
-
 def total_cajas(data):
     print("Generate file 'total_cajas.csv'")
-    data.write.csv("output/total_cajas.csv")
+
+
+    flattenDF = data.select(col("numero_caja"), explode("compras").alias("c")).selectExpr("numero_caja", "c.cantidad", "c.precio_unitario")
+
+    arrayDF = flattenDF.withColumn("tmp", arrays_zip(col("cantidad"), col("precio_unitario"))).withColumn("tmp", explode("tmp")).select("numero_caja", "tmp.cantidad", "tmp.precio_unitario")
+    arrayDF = arrayDF.withColumn("total_vendido", col("cantidad")*col("precio_unitario") )
+    
+    finalDF = arrayDF.select("numero_caja", "total_vendido")
+    finalDF = finalDF.groupBy('numero_caja').agg(sum("total_vendido").alias("total_vendido"))
+    
+    finalDF.show()
+    
+    finalDF.coalesce(1).write.option("header", True).csv("output/total_cajas")
 
 def metricas(data):
     print("Generate file 'metricas.csv'")
-    data.write.csv("output/metricas.csv")
+    data.coalesce(1).write.option("header", True).csv("output/metricas")
 
 def main(args=None):
     parser = get_parser()
@@ -71,7 +50,6 @@ def main(args=None):
     # Create spark session
     spark = spark_session()
 
-    # schema = ['numero_caja','compras']
     # Read cajas_*.json files
     df = spark.read.option("multiline","true").json(args.folder)
     df.printSchema()
@@ -82,7 +60,7 @@ def main(args=None):
     total_productos(df)
 
     # Generate file 'total_cajas.csv'
-    # total_cajas(df)
+    total_cajas(df)
 
     # Generate file 'metricas.csv'
     # metricas(df)

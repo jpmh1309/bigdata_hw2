@@ -24,8 +24,8 @@ productos = [
 ]
 
 def main():
-    compras = []
     for i in range(cantidad_cajas):
+        compras = []
         for j in range(cantidad_compras):
             cantidad_productos = random.randrange(1, len(productos))
             productos_seleccionados = random.sample(productos, cantidad_productos)
