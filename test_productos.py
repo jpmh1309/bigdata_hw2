@@ -1,26 +1,34 @@
-def test_sum_two_correctly(spark_session):
-    grades_data = [(1, 50), (2, 100)]
-    grades_ds = spark_session.createDataFrame(grades_data,
-                                              ['student_id', 'grade'])
-    student_data = [(1, 'Juan'), (2, 'Maria')]
-    student_ds = spark_session.createDataFrame(student_data,
-                                               ['id', 'name'])
+from programaestudiante import total_productos
 
-    grades_ds.show()
-    student_ds.show()
-    assert 2 + 2 == 4
+def test_full_total_productos(spark_session):
 
+    df = spark_session.read.option("multiline","true").json("datos/")
 
-def test_sum_two_incorrectly(spark_session):
-    # Expected to fail. Replace by
-    # assert 3 + 3 == 6
-    grades_data = [(1, 50), (2, 100)]
-    grades_ds = spark_session.createDataFrame(grades_data,
-                                              ['student_id', 'grade'])
-    student_data = [(1, 'Juan'), (2, 'Maria')]
-    student_ds = spark_session.createDataFrame(student_data,
-                                               ['id', 'name'])
+    actual_ds = total_productos(df)
+    
+    expected_ds = spark_session.createDataFrame(
+        [
+            ('kiwi', 82),
+            ('pera', 63),
+            ('papaya', 54),
+            ('brocoli', 2),
+            ('mango', 97),
+            ('sandia', 73),
+            ('melocoton', 57),
+            ('pina', 79),
+            ('manzana', 66),
+            ('ciruela', 63),
+            ('guayaba', 62),
+            ('limon', 58),
+            ('higo', 34),
+            ('aguacate', 56),
+            ('melon', 44),
+            ('banano', 74),
+            ('naranja', 96),
+        ],
+        ['nombre', 'total_vendido'])
 
-    grades_ds.show()
-    student_ds.show()
-    assert 3 + 3 == 5
+    expected_ds.show()
+    actual_ds.show()
+    
+    assert actual_ds.collect() == expected_ds.collect()

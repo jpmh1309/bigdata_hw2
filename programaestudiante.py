@@ -19,9 +19,9 @@ def total_productos(data):
     arrayDF = flattenDF.withColumn("tmp", arrays_zip(col("nombre"), col("cantidad"))).withColumn("tmp", explode("tmp")).select(col("tmp.nombre"), col("tmp.cantidad"))
     finalDF = arrayDF.groupBy('nombre').agg(sum("cantidad").alias("total_vendido"))
     
-    finalDF.show()
+    # finalDF.show()
     
-    finalDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/total_productos")
+    return finalDF
 
 def total_cajas(data):
     print("Generate file 'total_cajas.csv'")
@@ -34,9 +34,10 @@ def total_cajas(data):
     finalDF = arrayDF.select("numero_caja", "total_vendido")
     finalDF = finalDF.groupBy('numero_caja').agg(sum("total_vendido").alias("total_vendido"))
     
-    finalDF.show()
+    # finalDF.show()
+    return finalDF
     
-    finalDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/total_cajas")
+    # finalDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/total_cajas")
 
 def metricas(spark, data):
     print("Generate file 'metricas.csv'")
@@ -56,7 +57,7 @@ def metricas(spark, data):
     arrayDF = arrayDF.withColumn("total_vendido", col("cantidad")*col("precio_unitario") )
     total_cajasDF = arrayDF.select("numero_caja", "total_vendido")
     total_cajasDF = total_cajasDF.groupBy('numero_caja').agg(sum("total_vendido").alias("total_vendido"))
-    total_cajasDF.show()
+    # total_cajasDF.show()
 
     # Get caja_con_mas_ventas
     metricas['caja_con_mas_ventas'] = str(total_cajasDF.sort(total_cajasDF.total_vendido.desc()).collect()[0][0])
@@ -65,7 +66,7 @@ def metricas(spark, data):
     metricas['caja_con_menos_ventas'] = str(total_cajasDF.sort(total_cajasDF.total_vendido.asc()).collect()[0][0])
 
     total_cajasDF = total_cajasDF.sort(total_cajasDF.total_vendido.asc())
-    total_cajasDF.show()
+    # total_cajasDF.show()
 
     percentile = total_cajasDF.select(percentile_approx("total_vendido", [0.25, 0.5, 0.75], 1000000).alias("quantiles"))
     
@@ -81,7 +82,7 @@ def metricas(spark, data):
     flattenDF = data.select(explode("compras").alias("c")).selectExpr("c.nombre", "c.cantidad", "c.precio_unitario")
     arrayDF = flattenDF.withColumn("tmp", arrays_zip(col("nombre"), col("cantidad"), col("precio_unitario"))).withColumn("tmp", explode("tmp")).select(col("tmp.nombre"), col("tmp.cantidad"), (col("tmp.cantidad")*col("tmp.precio_unitario")).alias("total_ingreso"))
     total_productosDF = arrayDF.groupBy('nombre').agg(sum("cantidad").alias("total_vendido"), sum("total_ingreso").alias("total_ingreso"))
-    total_productosDF.show()
+    # total_productosDF.show()
 
     # Get producto_mas_vendido_por_unidad
     metricas['producto_mas_vendido_por_unidad'] = total_productosDF.sort(total_productosDF.total_vendido.desc()).collect()[0][0]
@@ -91,10 +92,12 @@ def metricas(spark, data):
 
     # Write csv file
     lol = list(map(list, metricas.items()))
-    metricasDF = spark.createDataFrame(lol, ["metrica", "valor"])
-    metricasDF.show()
+    finalDF = spark.createDataFrame(lol, ["metrica", "valor"])
+    # finalDF.show()
 
-    metricasDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/metricas")
+    return finalDF
+
+    # metricasDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/metricas")
 
 def main(args=None):
     parser = get_parser()
@@ -110,13 +113,19 @@ def main(args=None):
     df.show()
 
     # Generate file 'total_productos.csv'
-    # total_productos(df)
+    finalDF = total_productos(df)
+    finalDF.show()
+    finalDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/total_productos")
 
     # Generate file 'total_cajas.csv'
-    # total_cajas(df)
+    finalDF = total_cajas(df)
+    finalDF.show()
+    finalDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/total_cajas")
 
     # Generate file 'metricas.csv'
-    metricas(spark, df)
+    finalDF = metricas(spark, df)
+    finalDF.show()
+    finalDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/metricas")
 
 if __name__ == '__main__':
     main()

@@ -8,31 +8,26 @@ Jose Martinez
 ```
 
 ## Execution
-To build a CMake project
 
-1. Create a directory build, and go there
+1. Create docker image
 
-   mkdir build
-   cd build
+   ./build_image.sh
 
-2. Call cmake to create the Makefile
+2. Run docker
 
-   cmake ../
+   ./run_image.sh
 
-3. Build your project
+3. Run main
 
-   make
+   ./execute.sh
+   spark-submit programaestudiante.py -f datos/
 
-4. Run the executable left in the build directory
+4. Run whole tests
 
-   ./linetest
+   pytest
 
-## Information
+5. Run specific tests
 
-You might need to install some dependencies:
-
-In Ubuntu, among others:
-
-libopencv-dev and perhaps all other libopencv-* libraries
-freeglut3
-freeglut3-dev
+   pytest test_cajas.py
+   pytest test_metricas.py
+   pytest test_productos.py
