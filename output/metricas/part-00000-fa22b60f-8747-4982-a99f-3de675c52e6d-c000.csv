@@ -1,0 +1,8 @@
+metrica,valor
+caja_con_mas_ventas,3
+caja_con_menos_ventas,45
+percentil_25_por_caja,65550
+percentil_50_por_caja,76700
+percentil_75_por_caja,89050
+producto_mas_vendido_por_unidad,mango
+producto_de_mayor_ingreso,sandia
