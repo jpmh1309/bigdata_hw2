@@ -32,3 +32,43 @@ def test_full_total_productos(spark_session):
     actual_ds.show()
     
     assert actual_ds.collect() == expected_ds.collect()
+
+def test_draw_total_productos(spark_session):
+
+    df = spark_session.read.option("multiline","true").json("datos_ut/caja_ut1.json")
+    df.show()
+
+    actual_ds = total_productos(df)
+
+    expected_ds = spark_session.createDataFrame(
+        [
+            ('pera', 2),
+            ('brocoli', 2),
+            ('manzana', 3),
+            ('aguacate', 3),
+            ('banano', 3),
+        ],
+        ['nombre', 'total_vendido'])
+
+    expected_ds.show()
+    actual_ds.show()
+    
+    assert actual_ds.collect() == expected_ds.collect()
+
+def test_one_total_productos(spark_session):
+
+    df = spark_session.read.option("multiline","true").json("datos_ut/caja_ut2.json")
+    df.show()
+
+    actual_ds = total_productos(df)
+
+    expected_ds = spark_session.createDataFrame(
+        [
+            ('manzana', 15),
+        ],
+        ['nombre', 'total_vendido'])
+
+    expected_ds.show()
+    actual_ds.show()
+    
+    assert actual_ds.collect() == expected_ds.collect()

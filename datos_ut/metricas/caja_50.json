@@ -1,0 +1,12 @@
+{
+    "numero_caja": 50,
+    "compras": [
+        [
+            {
+                "nombre": "manzana",
+                "cantidad": 2 ,
+                "precio_unitario": 250
+            }
+        ],
+    ]
+}

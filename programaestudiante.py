@@ -26,6 +26,8 @@ def total_productos(data):
 def total_cajas(data):
     print("Generate file 'total_cajas.csv'")
 
+    data.fillna(0)
+
     flattenDF = data.select(col("numero_caja"), explode("compras").alias("c")).selectExpr("numero_caja", "c.cantidad", "c.precio_unitario")
 
     arrayDF = flattenDF.withColumn("tmp", arrays_zip(col("cantidad"), col("precio_unitario"))).withColumn("tmp", explode("tmp")).select("numero_caja", "tmp.cantidad", "tmp.precio_unitario")
@@ -41,6 +43,8 @@ def total_cajas(data):
 
 def metricas(spark, data):
     print("Generate file 'metricas.csv'")
+
+    data.fillna(0)
 
     metricas = {
         'caja_con_mas_ventas': str(0),

@@ -1,0 +1,36 @@
+{
+    "numero_caja": 45,
+    "compras": [
+        [
+            {
+                "nombre": "manzana",
+                "cantidad": 3 ,
+                "precio_unitario": 22
+            },
+            {
+                "nombre": "manzana",
+                "cantidad": 2 ,
+                "precio_unitario": 33
+            }
+        ],
+        [
+            {
+                "nombre": "manzana",
+                "cantidad": 3 ,
+                "precio_unitario": 5000
+            }
+        ],
+        [
+            {
+                "nombre": "manzana",
+                "cantidad": 5 ,
+                "precio_unitario": 22
+            },
+            {
+                "nombre": "manzana",
+                "cantidad": 2 ,
+                "precio_unitario": 33
+            }
+        ]
+    ]
+}
