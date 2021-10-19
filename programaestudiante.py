@@ -6,11 +6,6 @@ def spark_session():
     spark = SparkSession.builder.appName("Bigdata: Tarea 2").getOrCreate()
     return spark
 
-def get_parser():
-    parser = argparse.ArgumentParser('Tarea2')
-    parser.add_argument('--folder', '-f', type=str, help='Folder que contiene todos los archivos *.json ', required=True)
-    return parser
-
 def total_productos(data):
     print("Generate file 'total_productos.csv'")
 
@@ -103,6 +98,11 @@ def metricas(spark, data):
 
     # metricasDF.coalesce(1).write.mode('overwrite').option("header", True).csv("output/metricas")
 
+def get_parser():
+    parser = argparse.ArgumentParser('Tarea2')
+    parser.add_argument('--folder', '-f', type=str, help='Folder que contiene todos los archivos *.json ', required=True)
+    return parser
+    
 def main(args=None):
     parser = get_parser()
     args = parser.parse_args(args)
